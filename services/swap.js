@@ -23,12 +23,6 @@ async function connectToMongoDB() {
 
 
 
-const privateKey = process.env.PRIVATE_KEY;
-if (!privateKey) {
-  console.error("Private key is missing. Make sure you set the PRIVATE_KEY environment variable.");
-  process.exit(1);
-}
-
 // const wallet = new Wallet(Keypair.fromSecretKey(bs58.decode(privateKey)));
 
 
