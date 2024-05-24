@@ -1,4 +1,4 @@
-import { createWalletAndSaveToMongoDB, getDataFromMongoDB,  getWalletByAddress as getWalletByAddressService } from '../services/walletService.js';
+import { createWalletAndSaveToMongoDB, getDataFromMongoDB,  getWalletByAddress as getWalletByAddressService  , decryptPrivateKey} from '../services/walletService.js';
 
 
 export async function createWallet(req, res) {
@@ -29,6 +29,17 @@ export async function getWalletByAddress(req, res) {
         console.log(address)
         const walletData = await getWalletByAddressService(address);
         res.json({ data: walletData });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+}
+
+export async function getDecryptedKey  (req, res) {
+    try {
+        const { encryptedPrivateKey, ivHex, encryptionKey } = req.body;
+        
+        const decryptedPrivateKey = await decryptPrivateKey(encryptedPrivateKey, ivHex, encryptionKey);
+        res.json({ decryptedPrivateKey });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
