@@ -328,7 +328,7 @@ export async function swapTokens(inputMint, outputMint, amount, swapMode, addres
 //   }
 // }
 
-async function getTransactionStatus(transactionSignature, timeout = 20000, interval = 10000) {
+async function getTransactionStatus(transactionSignature, timeout = 28000, interval = 10000) {
   try {
     console.log(`Fetching status for transaction signature: ${transactionSignature}`);
     const startTime = Date.now();
