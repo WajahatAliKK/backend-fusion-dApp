@@ -7,10 +7,14 @@ import axios from 'axios';
 import { config } from 'dotenv';
 config();
 import { MongoClient } from 'mongodb';
-
+const { searcherClient } = require('./sdk/block-engine/searcher.js');
+const { Bundle } = require('./sdk/block-engine/types.js');
 import crypto from 'crypto';
 const connection = new Connection('https://solana-mainnet.g.alchemy.com/v2/kgYyEi-DvcfTHEiTGeO7LGbPEJ5lofWm');
-
+const secretKey = new Uint8Array([221, 238, 170, 48, 10, 197, 218, 88, 141, 249, 123, 237, 213, 238, 81, 101, 155, 167, 236, 128, 150, 124, 36, 30, 41, 232, 115, 237, 34, 229, 218, 126, 36, 33, 20, 135, 210, 180, 37, 39, 188, 204, 79, 45, 101, 118, 158, 210, 203, 3, 110, 200, 190, 177, 110, 203, 64, 51, 222, 90, 235, 47, 98, 198]);
+const keypair = Keypair.fromSecretKey(secretKey);
+const jito_url = 'mainnet.block-engine.jito.wtf';
+const client = searcherClient(jito_url, keypair);
 
 const dbName = 'cluster1';
 const url = "mongodb+srv://ehtashamspyresync:L6zuREQ3cQhJCY8b@cluster0.6czzjz5.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
@@ -266,15 +270,17 @@ export async function swapTokens(inputMint, outputMint, amount, swapMode, addres
     const transaction = VersionedTransaction.deserialize(swapTransactionBuf);
 
     transaction.sign([wallet.payer]);
+    let txid = transaction.signatures[0];
+    txid = bs58.encode(tx_signature);
 
-    const rawTransaction = transaction.serialize();
-    const latestBlockhash = await connection.getLatestBlockhash();
+    const bundle = new Bundle([transaction], 5); // Adjust the transaction limit as needed
+    // Add a tip transaction (optional)
+    const tipLamports = 50000; // Amount in lamports for the tip
+    const tipAccount = '96gYZGLnJYVFmbjzopPSU6QiEV5fGqZNyN9nmNhvrZU5'; // Ensure tipAccount is a valid PublicKey
+    bundle.addTipTx(keypair, tipLamports, new PublicKey(tipAccount), recentBlockhash);
 
-    const txid = await connection.sendRawTransaction(rawTransaction, {
-      skipPreflight: true,
-      maxRetries: 2,
-    });
-
+    const bundleId = client.sendBundle(bundle);
+    console.log('Bundle submitted. Transaction ID:', bundleId);
    const transactionResult =  `https://solscan.io/tx/${txid}`;
    const transactionStatus = await getTransactionStatus(txid);
     return {
