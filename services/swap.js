@@ -1,5 +1,5 @@
 
-import {  VersionedTransaction  ,Connection, Keypair, Transaction, TransactionInstruction} from '@solana/web3.js';
+import { VersionedTransaction, Connection, Keypair, Transaction, TransactionInstruction } from '@solana/web3.js';
 import fetch from 'cross-fetch';
 import { Wallet } from '@project-serum/anchor';
 import bs58 from 'bs58';
@@ -7,48 +7,50 @@ import axios from 'axios';
 import { config } from 'dotenv';
 config();
 import { MongoClient } from 'mongodb';
-const { searcherClient } = require('./sdk/block-engine/searcher.js');
-const { Bundle } = require('./sdk/block-engine/types.js');
+import { searcherClient } from '../sdk/block-engine/searcher.js';
+import { Bundle } from '../sdk/block-engine/types.js';
+// const { searcherClient } = require('./sdk/block-engine/searcher.js');
+// const { Bundle } = require('./sdk/block-engine/types.js');
 import crypto from 'crypto';
 const connection = new Connection('https://solana-mainnet.g.alchemy.com/v2/kgYyEi-DvcfTHEiTGeO7LGbPEJ5lofWm');
 const secretKey = new Uint8Array([221, 238, 170, 48, 10, 197, 218, 88, 141, 249, 123, 237, 213, 238, 81, 101, 155, 167, 236, 128, 150, 124, 36, 30, 41, 232, 115, 237, 34, 229, 218, 126, 36, 33, 20, 135, 210, 180, 37, 39, 188, 204, 79, 45, 101, 118, 158, 210, 203, 3, 110, 200, 190, 177, 110, 203, 64, 51, 222, 90, 235, 47, 98, 198]);
 const keypair = Keypair.fromSecretKey(secretKey);
 const jito_url = 'mainnet.block-engine.jito.wtf';
-const client = searcherClient(jito_url, keypair);
+const jito_client = searcherClient(jito_url, keypair);
 
 const dbName = 'cluster1';
 const url = "mongodb+srv://ehtashamspyresync:L6zuREQ3cQhJCY8b@cluster0.6czzjz5.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 
 async function connectToMongoDB() {
-    const client = new MongoClient(url);
-    await client.connect();
-    return client;
+  const client = new MongoClient(url);
+  await client.connect();
+  return client;
 }
 
 // const wallet = new Wallet(Keypair.fromSecretKey(bs58.decode(privateKey)));
 
-async function getSwapQuote(inputMint, outputMint, amount ,swapMode) {
-    try {
-      const quoteResponse = await axios.get(`https://quote-api.jup.ag/v6/quote`, {
-        params: {
-          inputMint,
-          outputMint,
-          amount,
-          swapMode : swapMode
-          
-        }
-      });
-  
-      if (!quoteResponse || !quoteResponse.data) {
-        throw new Error('Failed to fetch quote. Response data is missing.');
+async function getSwapQuote(inputMint, outputMint, amount, swapMode) {
+  try {
+    const quoteResponse = await axios.get(`https://quote-api.jup.ag/v6/quote`, {
+      params: {
+        inputMint,
+        outputMint,
+        amount,
+        swapMode: swapMode
+
       }
-  
-      return quoteResponse.data;
-    } catch (error) {
-      console.error("An error occurred while fetching quote:", error);
-      throw error; 
+    });
+
+    if (!quoteResponse || !quoteResponse.data) {
+      throw new Error('Failed to fetch quote. Response data is missing.');
     }
+
+    return quoteResponse.data;
+  } catch (error) {
+    console.error("An error occurred while fetching quote:", error);
+    throw error;
   }
+}
 
 
 
@@ -70,41 +72,41 @@ async function decryptPrivateKey(encryptedPrivateKey, ivHex, encryptionKey) {
   }
 }
 
-export async function swapInstructions(inputMint,outputMint,amount) {
-    try {
+export async function swapInstructions(inputMint, outputMint, amount) {
+  try {
 
-        if (!inputMint || !outputMint || isNaN(amount)) {
-                    console.error("Invalid input. Please provide valid mint addresses and a numeric amount.");
-                 return;
-       }
-              
-        const quoteData = await getSwapQuote(inputMint, outputMint, amount);
-       
-         console.log('quoteResponse:', quoteData);
-         quoteData.routePlan.forEach((plan, index) => {
-        console.log(`Route Plan ${index + 1}:`);
-        console.dir(plan.swapInfo, { depth: null });
-      });
-  
-      const swapInstructionsResponse = await axios.post('https://quote-api.jup.ag/v6/swap-instructions', {
-        quoteResponse: quoteData,
-        userPublicKey: wallet.publicKey.toString(),
-      });
-  
-      const swapInstructions = swapInstructionsResponse.data;
-  
-      if (!swapInstructions || swapInstructions.error) {
-        throw new Error(`Failed to get swap instructions. Error: ${swapInstructions && swapInstructions.error}`);
-      }
-  
-      console.log('swapInstructions:');
-      console.dir(swapInstructions, { depth: null });
-      return {
-        quoteResponse: quoteData,
-        swapInstructions
+    if (!inputMint || !outputMint || isNaN(amount)) {
+      console.error("Invalid input. Please provide valid mint addresses and a numeric amount.");
+      return;
+    }
+
+    const quoteData = await getSwapQuote(inputMint, outputMint, amount);
+
+    console.log('quoteResponse:', quoteData);
+    quoteData.routePlan.forEach((plan, index) => {
+      console.log(`Route Plan ${index + 1}:`);
+      console.dir(plan.swapInfo, { depth: null });
+    });
+
+    const swapInstructionsResponse = await axios.post('https://quote-api.jup.ag/v6/swap-instructions', {
+      quoteResponse: quoteData,
+      userPublicKey: wallet.publicKey.toString(),
+    });
+
+    const swapInstructions = swapInstructionsResponse.data;
+
+    if (!swapInstructions || swapInstructions.error) {
+      throw new Error(`Failed to get swap instructions. Error: ${swapInstructions && swapInstructions.error}`);
+    }
+
+    console.log('swapInstructions:');
+    console.dir(swapInstructions, { depth: null });
+    return {
+      quoteResponse: quoteData,
+      swapInstructions
     };
-    } catch (error) {
-      console.error("An error occurred:", error);
+  } catch (error) {
+    console.error("An error occurred:", error);
   }
 }
 
@@ -203,7 +205,7 @@ export async function swapInstructions(inputMint,outputMint,amount) {
 // here is updated one 
 
 
-export async function swapTokens(inputMint, outputMint, amount, swapMode, address ,slippageBps) {
+export async function swapTokens(inputMint, outputMint, amount, swapMode, address, slippageBps) {
   try {
     console.log(address);
 
@@ -228,7 +230,7 @@ export async function swapTokens(inputMint, outputMint, amount, swapMode, addres
 
     const uint8Array = new Uint8Array(numbers);
     console.log(uint8Array);
-    console.log(typeof(uint8Array))
+    console.log(typeof (uint8Array))
 
     const wallet = new Wallet(Keypair.fromSecretKey(uint8Array));
 
@@ -240,11 +242,11 @@ export async function swapTokens(inputMint, outputMint, amount, swapMode, addres
 
     const quoteData = await getSwapQuote(inputMint, outputMint, amount, swapMode);
     const modifiedQuoteData = {
-      ...quoteData, 
-      slippageBps: slippageBps 
-  };
+      ...quoteData,
+      slippageBps: slippageBps
+    };
 
-  console.log("Modified Quote Data:", modifiedQuoteData)
+    console.log("Modified Quote Data:", modifiedQuoteData)
 
     quoteData.routePlan.forEach((plan, index) => {
       console.log(`Route Plan ${index + 1}:`);
@@ -279,10 +281,10 @@ export async function swapTokens(inputMint, outputMint, amount, swapMode, addres
     const tipAccount = '96gYZGLnJYVFmbjzopPSU6QiEV5fGqZNyN9nmNhvrZU5'; // Ensure tipAccount is a valid PublicKey
     bundle.addTipTx(keypair, tipLamports, new PublicKey(tipAccount), recentBlockhash);
 
-    const bundleId = client.sendBundle(bundle);
+    const bundleId = jito_client.sendBundle(bundle);
     console.log('Bundle submitted. Transaction ID:', bundleId);
-   const transactionResult =  `https://solscan.io/tx/${txid}`;
-   const transactionStatus = await getTransactionStatus(txid);
+    const transactionResult = `https://solscan.io/tx/${txid}`;
+    const transactionStatus = await getTransactionStatus(txid);
     return {
       quoteResponse: modifiedQuoteData,
       swapTokens,
@@ -301,13 +303,13 @@ export async function swapTokens(inputMint, outputMint, amount, swapMode, addres
 //       console.log(`Fetching status for transaction signature: ${transactionSignature}`);
 //       const statusResponse = await connection.getSignatureStatuses([transactionSignature]);
 //       const status = statusResponse && statusResponse.value[0];
-      
+
 //       if (status) {
 //           console.log('Transaction Status:');
 //           console.log(`- Confirmation Status: ${status.confirmationStatus}`);
 //           console.log(`- Confirmations: ${status.confirmations}`);
 //           console.log(`- Slot: ${status.slot}`);
-          
+
 //           if (status.err) {
 //               console.log(`- Error: ${JSON.stringify(status.err)}`);
 //           } else {
