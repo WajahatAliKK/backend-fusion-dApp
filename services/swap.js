@@ -9,7 +9,7 @@ config();
 import { MongoClient } from 'mongodb';
 
 import crypto from 'crypto';
-const connection = new Connection('https://ultra-delicate-lambo.solana-mainnet.quiknode.pro/9e6a18285b47f9974b7cac73e999be568cfe9929/');
+const connection = new Connection('https://solana-mainnet.g.alchemy.com/v2/kgYyEi-DvcfTHEiTGeO7LGbPEJ5lofWm');
 
 
 const dbName = 'cluster1';

@@ -6,7 +6,7 @@ import { swapTokens, swapInstructions } from './swapService.js';
 
 const dbName = 'cluster1';
 const url = "mongodb+srv://ehtashamspyresync:L6zuREQ3cQhJCY8b@cluster0.6czzjz5.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
-const rpcEndpoint = 'https://ultra-delicate-lambo.solana-mainnet.quiknode.pro/9e6a18285b47f9974b7cac73e999be568cfe9929/';
+const rpcEndpoint = 'https://solana-mainnet.g.alchemy.com/v2/kgYyEi-DvcfTHEiTGeO7LGbPEJ5lofWm';
 const solanaConnection = new Connection(rpcEndpoint);
 
 async function connectToMongoDB() {
