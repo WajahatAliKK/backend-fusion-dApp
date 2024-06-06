@@ -7,8 +7,6 @@ import axios from 'axios';
 import { config } from 'dotenv';
 config();
 import { MongoClient } from 'mongodb';
-import { searcherClient } from '../sdk/block-engine/searcher.js';
-import { Bundle } from '../sdk/block-engine/types.js';
 // const { searcherClient } = require('./sdk/block-engine/searcher.js');
 // const { Bundle } = require('./sdk/block-engine/types.js');
 import crypto from 'crypto';
@@ -16,7 +14,7 @@ const connection = new Connection('https://solana-mainnet.g.alchemy.com/v2/kgYyE
 const secretKey = new Uint8Array([221, 238, 170, 48, 10, 197, 218, 88, 141, 249, 123, 237, 213, 238, 81, 101, 155, 167, 236, 128, 150, 124, 36, 30, 41, 232, 115, 237, 34, 229, 218, 126, 36, 33, 20, 135, 210, 180, 37, 39, 188, 204, 79, 45, 101, 118, 158, 210, 203, 3, 110, 200, 190, 177, 110, 203, 64, 51, 222, 90, 235, 47, 98, 198]);
 const keypair = Keypair.fromSecretKey(secretKey);
 const jito_url = 'mainnet.block-engine.jito.wtf';
-const jito_client = searcherClient(jito_url, keypair);
+// const jito_client = searcherClient(jito_url, keypair);
 
 const dbName = 'cluster1';
 const url = "mongodb+srv://ehtashamspyresync:L6zuREQ3cQhJCY8b@cluster0.6czzjz5.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";

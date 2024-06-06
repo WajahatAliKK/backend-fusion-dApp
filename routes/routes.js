@@ -13,8 +13,8 @@ router.post('/settings/quickbuy', setQuickBuySettings);
 router.get('/settings/getQuickBuySettings/:publicAddress', getQuickBuySettings);
 router.post('/settings/quickSell', setQuickSellSettings);
 router.get('/settings/getQuickSellSettings/:publicAddress', getQuickSellSettings);
-router.post('/swapTokensExactOut', swapTokensExactOut);
-router.post('/swapTokensExactIn', swapTokensExactIn);
+// router.post('/swapTokensExactOut', swapTokensExactOut);
+// router.post('/swapTokensExactIn', swapTokensExactIn);
 router.post('/getPrivateKey', getDecryptedKey);
 // router.post('/swap-instructions', getSwapInstructions);
 
