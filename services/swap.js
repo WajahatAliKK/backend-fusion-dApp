@@ -383,3 +383,5 @@ async function getTransactionStatus(transactionSignature, timeout = 28000, inter
 function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
+
+// function tot TannsfeSOL
