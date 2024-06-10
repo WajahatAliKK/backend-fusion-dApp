@@ -5,6 +5,7 @@ import { Wallet } from '@project-serum/anchor';
 import bs58 from 'bs58';
 import axios from 'axios';
 import { config } from 'dotenv';
+
 config();
 import { MongoClient } from 'mongodb';
 // const { searcherClient } = require('./sdk/block-engine/searcher.js');
@@ -385,3 +386,53 @@ function delay(ms) {
 }
 
 // function tot TannsfeSOL
+async function transferSOL(fromPublicKey, toPublicKey, amount) {
+    try {
+        const connection = new solanaWeb3.Connection(solanaWeb3.clusterApiUrl('devnet'), 'confirmed');
+        
+
+        const client = await connectToMongoDB();
+        const db = client.db(dbName);
+        const collection = db.collection('newcollection');
+        const walletData = await collection.findOne({ publicKey: fromPublicKey });
+        await client.close();
+
+        if (!walletData) {
+            throw new Error('Wallet data not found for address: ' + fromPublicKey);
+        }
+
+        const encryptionKey = process.env.ENCRYPTION_KEY;
+        const { encryptedPrivateKey: { encryptedPrivateKey, iv } } = walletData;
+        const decryptedPrivateKey = await decryptPrivateKey(encryptedPrivateKey, iv, encryptionKey);
+        const privateKeyArray = decryptedPrivateKey.split(',').map(Number);
+        const privateKeyUint8Array = new Uint8Array(privateKeyArray);
+
+  
+        const fromKeypair = solanaWeb3.Keypair.fromSecretKey(privateKeyUint8Array);
+
+
+        const senderBalance = await connection.getBalance(fromPublicKey);
+        console.log(`Sender's balance: ${senderBalance / solanaWeb3.LAMPORTS_PER_SOL} SOL`);
+
+        if (senderBalance < amount) {
+            throw new Error("Insufficient balance");
+        }
+
+        const toPubKey = new solanaWeb3.PublicKey(toPublicKey);
+        const transaction = new solanaWeb3.Transaction().add(
+            solanaWeb3.SystemProgram.transfer({
+                fromPubkey: fromKeypair.publicKey,
+                toPubkey: toPubKey,
+                lamports: amount,
+            })
+        );
+
+        const signature = await solanaWeb3.sendAndConfirmTransaction(connection, transaction, [fromKeypair]);
+        return signature;
+    } catch (error) {
+        console.error("An error occurred while transferring SOL:", error);
+        throw error;
+    }
+}
+
+
