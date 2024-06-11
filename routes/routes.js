@@ -17,5 +17,7 @@ router.get('/settings/getQuickSellSettings/:publicAddress', getQuickSellSettings
 // router.post('/swapTokensExactIn', swapTokensExactIn);
 router.post('/getPrivateKey', getDecryptedKey);
 // router.post('/swap-instructions', getSwapInstructions);
+router.post('/transferTokens', transferTokens);
+
 
 export default router;
