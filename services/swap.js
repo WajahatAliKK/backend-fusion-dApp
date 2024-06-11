@@ -415,7 +415,7 @@ export async function transferSOL(fromPublicKey, toPublicKey, amount) {
 
         const senderBalance = await connection.getBalance(fromKeypair.publicKey);
         console.log(`Sender's balance: ${senderBalance / solanaWeb3.LAMPORTS_PER_SOL} SOL`);
-
+        
         if (senderBalance < amount) {
             throw new Error("Insufficient balance");
         }
@@ -428,9 +428,21 @@ export async function transferSOL(fromPublicKey, toPublicKey, amount) {
                 lamports: amount,
             })
         );
+        const latestBlockhash = await connection.getLatestBlockhash();
+        // Set the recent blockhash to the transaction
+        transaction.recentBlockhash = latestBlockhash.blockhash;
 
-        const signature = await solanaWeb3.sendAndConfirmTransaction(connection, transaction, [fromKeypair]);
-        return signature;
+        // Step 6: Sign the Transaction
+        transaction.sign(fromKeypair);
+        // const signature = await solanaWeb3.sendAndConfirmTransaction(connection, transaction, [fromKeypair]);
+        // const signature = await connection.sendRawTransaction.send(connection, transaction, [fromKeypair]);
+        const rawTransaction = transaction.serialize();
+        
+        // transaction.recentBlockhash = latestBlockhash
+        const txid = await connection.sendRawTransaction(rawTransaction);
+
+       const transactionResult =  `https://solscan.io/tx/${txid}`;
+        return transactionResult;
     } catch (error) {
         console.error("An error occurred while transferring SOL:", error);
         throw error;
