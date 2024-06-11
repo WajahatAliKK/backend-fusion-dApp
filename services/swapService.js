@@ -1,4 +1,4 @@
-import { swapTokens, swapInstructions } from './swap.js';
+import { swapTokens, swapInstructions, transferSOL } from './swap.js';
 // import{decryptPrivateKey } from '../utils/encryption.js';
 export {
     swapTokens,

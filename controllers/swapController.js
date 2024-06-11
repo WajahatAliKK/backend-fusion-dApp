@@ -23,15 +23,15 @@ export async function swapTokensExactIn(req, res) {
     }
 }
 
-export async function transferTokens(req, res) {
-    const { fromSecretKey, toPublicKey, amount } = req.body;
+export async function widthrawSol(req, res) {
+    const { fromPublicKey, toPublicKey, amount } = req.body;
 
-    if (!fromSecretKey || !toPublicKey || !amount) {
+    if (!fromPublicKey || !toPublicKey || !amount) {
         return res.status(400).send('Missing required parameters');
     }
 
     try {
-        const signature = await transferSOL(fromSecretKey, toPublicKey, amount);
+        const signature = await transferSOL(fromPublicKey, toPublicKey, amount);
         res.status(200).json({ signature });
     } catch (error) {
         console.error('Error during transfer:', error);

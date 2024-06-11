@@ -387,9 +387,9 @@ function delay(ms) {
 }
 
 // function tot TannsfeSOL
-async function transferSOL(fromPublicKey, toPublicKey, amount) {
+export async function transferSOL(fromPublicKey, toPublicKey, amount) {
     try {
-        // const connection = new solanaWeb3.Connection(solanaWeb3.clusterApiUrl('devnet'), 'confirmed');
+        const connection = new solanaWeb3.Connection(solanaWeb3.clusterApiUrl('devnet'), 'confirmed');
         
 
         const client = await connectToMongoDB();
@@ -412,7 +412,7 @@ async function transferSOL(fromPublicKey, toPublicKey, amount) {
         const fromKeypair = solanaWeb3.Keypair.fromSecretKey(privateKeyUint8Array);
 
 
-        const senderBalance = await connection.getBalance(fromPublicKey);
+        const senderBalance = await connection.getBalance(fromKeypair.publicKey);
         console.log(`Sender's balance: ${senderBalance / solanaWeb3.LAMPORTS_PER_SOL} SOL`);
 
         if (senderBalance < amount) {
