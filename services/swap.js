@@ -389,7 +389,7 @@ function delay(ms) {
 // function tot TannsfeSOL
 export async function transferSOL(fromPublicKey, toPublicKey, amount) {
     try {
-        const connection = new solanaWeb3.Connection(solanaWeb3.clusterApiUrl('devnet'), 'confirmed');
+        // const connection = new solanaWeb3.Connection(solanaWeb3.clusterApiUrl('devnet'), 'confirmed');
         
 
         const client = await connectToMongoDB();
