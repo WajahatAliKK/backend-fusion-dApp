@@ -6,6 +6,7 @@ import bs58 from 'bs58';
 import axios from 'axios';
 import { config } from 'dotenv';
 
+import * as solanaWeb3 from '@solana/web3.js';
 config();
 import { MongoClient } from 'mongodb';
 // const { searcherClient } = require('./sdk/block-engine/searcher.js');
