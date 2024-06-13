@@ -1,6 +1,6 @@
 
 
-import { swapTokens as swapTokensExactOutService, swapTokens as swapTokensExactInService , transferSOL} from '../services/swapService.js';
+import { swapTokens as swapTokensExactOutService, swapTokens as swapTokensExactInService , transferSOL, withdraw, getRecentData} from '../services/swapService.js';
 
 export async function swapTokensExactOut(req, res) {
     const { inputMint, outputMint, amount ,address,slippageBps } = req.body;
@@ -31,10 +31,22 @@ export async function widthrawSol(req, res) {
     }
 
     try {
-        const signature = await transferSOL(fromPublicKey, toPublicKey, amount);
+        const signature = await withdraw(fromPublicKey, toPublicKey, amount);
         res.status(200).json({ signature });
     } catch (error) {
         console.error('Error during transfer:', error);
         res.status(500).send('Transfer failed');
+    }
+}
+
+
+export async function getNewPairs(req, res) {
+
+    try {
+        const recentData = await getRecentData();
+        res.json(recentData);
+    } catch (error) {
+        console.error('Error in /recent-data endpoint:', error);
+        res.status(500).json({ error: 'Failed to fetch recent data', details: error.message });
     }
 }

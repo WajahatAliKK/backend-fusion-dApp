@@ -415,10 +415,7 @@ export async function transferSOL(fromPublicKey, toPublicKey, amount) {
 
         const senderBalance = await connection.getBalance(fromKeypair.publicKey);
         console.log(`Sender's balance: ${senderBalance / solanaWeb3.LAMPORTS_PER_SOL} SOL`);
-        
-        if (senderBalance < amount) {
-            throw new Error("Insufficient balance");
-        }
+        console.log(`Sender's Address: ${fromKeypair.publicKey.toString()}`);
 
         const toPubKey = new solanaWeb3.PublicKey(toPublicKey);
         const transaction = new solanaWeb3.Transaction().add(
@@ -449,4 +446,24 @@ export async function transferSOL(fromPublicKey, toPublicKey, amount) {
     }
 }
 
-
+export async function withdraw(fromPublicKey, toPublicKey, amountInLamports) {
+  const getUserBalance = await getBalance(fromPublicKey);
+  console.log("User Balance:", getUserBalance);
+  const fee = 5000;
+  const remainingBalance = getUserBalance - amountInLamports;
+  let transactionAmount;
+  if (remainingBalance >= fee) {
+      transactionAmount = amountInLamports;
+  } else {
+      transactionAmount = amountInLamports - fee;
+  }
+  try {
+      const signature = await transferSOL(fromPublicKey, toPublicKey, transactionAmount);
+      console.log("Transaction amount :" ,transactionAmount);
+      console.log("Transaction signature:", signature);
+      return signature;
+  } catch (error) {
+      console.error("Withdrawal failed:", error);
+      throw error;
+  }
+}
