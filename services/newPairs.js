@@ -36,3 +36,37 @@ export async function getRecentData() {
         }
     }
 }
+
+export async function getItemsBySource(userChoice) {
+    try {
+        client = await connectToMongoDB();
+        const db = client.db(dbName);
+        const collection = db.collection(collectionName);
+        
+        let query = {};
+
+        if (userChoice === 1) {
+            query = { source: "Raydium" };
+        } else if (userChoice === 2) {
+            query = { source: "Orca" };
+        }
+
+        const options = {
+            sort: { timestamp: -1 }, 
+            limit: 10 
+        };
+
+        const items = await collection.find(query).sort(options.sort).limit(options.limit).toArray();
+        
+        console.log(`Found ${items.length} recent items based on user choice ${userChoice}`);
+        
+        return items;
+    } catch (error) {
+        console.error('Error fetching items:', error);
+        throw error;
+    } finally {
+        if (client) {
+            await client.close();
+        }
+    }
+}
