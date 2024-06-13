@@ -1,6 +1,6 @@
 
 
-import { swapTokens as swapTokensExactOutService, swapTokens as swapTokensExactInService , transferSOL, withdraw, getRecentData} from '../services/swapService.js';
+import { swapTokens as swapTokensExactOutService, swapTokens as swapTokensExactInService , transferSOL, withdraw, getRecentData,getItemsBySource} from '../services/swapService.js';
 
 export async function swapTokensExactOut(req, res) {
     const { inputMint, outputMint, amount ,address,slippageBps } = req.body;
@@ -48,5 +48,15 @@ export async function getNewPairs(req, res) {
     } catch (error) {
         console.error('Error in /recent-data endpoint:', error);
         res.status(500).json({ error: 'Failed to fetch recent data', details: error.message });
+    }
+}
+
+export async function dexFilter(req, res)  {
+    const { choice } = req.query;
+    try {
+        const items = await getItemsBySource(parseInt(choice, 10));
+        res.json(items);
+    } catch (error) {
+        res.status(500).send('Error fetching items');
     }
 }
