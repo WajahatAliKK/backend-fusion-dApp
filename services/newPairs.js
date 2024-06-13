@@ -23,10 +23,24 @@ export async function getRecentData() {
         client = await connectToMongoDB();
         const db = client.db(dbName);
         const collection = db.collection(collectionName);
-
-        const recentData = await collection.find().sort({ timestamp: -1 }).limit(15).toArray();
-
-        return recentData;
+        // Fetch the top 15 recent documents sorted by timestamp
+        const recentData = await collection.find()
+            .sort({ timestamp: -1 })
+            .limit(10)
+            .toArray();
+        // Use a Set to store unique addresses
+        const uniqueAddresses = new Set();
+        const uniqueRecentData = [];
+        // Iterate over recentData to filter out duplicates by address
+        recentData.forEach(doc => {
+            const address = doc.address;
+            // Check if the address is already in the Set
+            if (!uniqueAddresses.has(address)) {
+                uniqueAddresses.add(address);
+                uniqueRecentData.push(doc);
+            }
+        });
+        return uniqueRecentData;
     } catch (error) {
         console.error('Error fetching recent data:', error);
         throw error;
