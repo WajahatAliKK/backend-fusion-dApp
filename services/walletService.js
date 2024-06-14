@@ -92,22 +92,22 @@ async function getDataFromMongoDB() {
     }
 }
 
-async function decryptPrivateKey(encryptedPrivateKey, ivHex , encryptionKey) {
-    try {
-        if (!encryptionKey) {
-            throw new Error('Encryption key not provided');
-        }
+// async function decryptPrivateKey(encryptedPrivateKey, ivHex , encryptionKey) {
+//     try {
+//         if (!encryptionKey) {
+//             throw new Error('Encryption key not provided');
+//         }
   
-        const iv = Buffer.from(ivHex, 'hex'); 
+//         const iv = Buffer.from(ivHex, 'hex'); 
   
-        const decipher = crypto.createDecipheriv('aes-256-cbc', encryptionKey, iv);
-        let decryptedPrivateKey = decipher.update(encryptedPrivateKey, 'base64', 'utf8');
-        decryptedPrivateKey += decipher.final('utf8');
-        return decryptedPrivateKey;
-    } catch (error) {
-        throw new Error('Error decrypting private key: ' + error.message);
-    }
-}
+//         const decipher = crypto.createDecipheriv('aes-256-cbc', encryptionKey, iv);
+//         let decryptedPrivateKey = decipher.update(encryptedPrivateKey, 'base64', 'utf8');
+//         decryptedPrivateKey += decipher.final('utf8');
+//         return decryptedPrivateKey;
+//     } catch (error) {
+//         throw new Error('Error decrypting private key: ' + error.message);
+//     }
+// }
 // async function getWalletByAddress(address) {
 //     try {
 //         const client = await connectToMongoDB();
@@ -122,7 +122,37 @@ async function decryptPrivateKey(encryptedPrivateKey, ivHex , encryptionKey) {
 //     }
 // }
 
+async function decryptPrivateKey(encryptedPrivateKey, ivHex , encryptionKey) {
+    try {
+        if (!encryptionKey) {
+            throw new Error('Encryption key not provided');
+        }
+  
+        const iv = Buffer.from(ivHex, 'hex'); 
+  
+        const decipher = crypto.createDecipheriv('aes-256-cbc', encryptionKey, iv);
 
+        
+        let decryptedPrivateKey = decipher.update(encryptedPrivateKey, 'base64', 'utf8');
+    
+        decryptedPrivateKey += decipher.final('utf8');
+
+        let numbersAsString = decryptedPrivateKey.split(',');
+
+        let uint8Array = new Uint8Array(numbersAsString.length);
+
+        for (let i = 0; i < numbersAsString.length; i++) {
+            let intValue = parseInt(numbersAsString[i], 10);
+            uint8Array[i] = intValue;
+        }
+
+        console.log(uint8Array);
+        const privateKey = bs58.encode(uint8Array)
+        return privateKey;
+    } catch (error) {
+        throw new Error('Error decrypting private key: ' + error.message);
+    }
+}
 async function getWalletByAddress(address) {
     try {
         const client = await connectToMongoDB();
