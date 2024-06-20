@@ -102,3 +102,19 @@ export async function  updateuserData (req, res)  {
         res.status(500).json({ error: 'Failed to update user data' });
     }
 });
+
+export  async function getUserData(req, res)  {
+    const { userAddress } = req.query;
+
+    if (!userAddress) {
+        return res.status(400).json({ message: 'Missing userAddress parameter' });
+    }
+
+    try {
+        const userData = await getUserDataByAddress(userAddress);
+        res.json(userData);
+    } catch (error) {
+        console.error('Failed to fetch user data:', error);
+        res.status(404).json({ message: 'User data not found' });
+    }
+});
