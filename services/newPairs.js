@@ -220,3 +220,69 @@ export async function updateUserSettings(userAddress, updates) {
         }
     }
 }
+
+
+export async function getUserDataByAddress(userAddress) {
+    let client;
+    try {
+        client = await connectToMongoDB();
+        const db = client.db(dbName);
+        const collection = db.collection('lumina-birdapi-userSettingData-saved');
+
+        const query = { userAddress };
+        console.log('Executing query:', query);
+        let userData = await collection.findOne(query);
+
+        console.log('Found user data:', userData);
+
+        if (!userData) {
+            const defaultData = {
+                userAddress,
+                Slippage: 2,
+                priorityFee: 0.1,
+                smartMevProtection: false,
+                BriberyAmount: 0.1,
+                amount1: 0.1,
+                amount2: 0.2,
+                amount3: 0.5,
+                amount4: 1,
+                amount5: 5,
+                amount6: 10
+            };
+
+            const result = await collection.insertOne(defaultData);
+            userData = { ...defaultData, _id: result.insertedId };
+
+            console.log('Saved new user data:', userData);
+        }
+
+        const amounts = [];
+        for (let i = 1; i <= 6; i++) {
+            const amountKey = `amount${i}`;
+            amounts.push({ [amountKey]: userData[amountKey] });
+        }
+
+        const transformedUserData = {
+            _id: userData._id.toString(),
+            userAddress: userData.userAddress,
+            Slippage: userData.Slippage ? parseFloat(userData.Slippage) : null,
+            priorityFee: userData.priorityFee ? parseFloat(userData.priorityFee) : null,
+            smartMevProtection: !!userData.smartMevProtection,
+            BriberyAmount: userData.BriberyAmount ? parseFloat(userData.BriberyAmount) : null,
+            ...amounts.reduce((acc, cur) => ({ ...acc, ...cur }), {})
+        };
+
+        return {
+            success: true,
+            message: userData ? 'User data found' : 'User data initialized with defaults',
+            data: transformedUserData
+        };
+    } catch (error) {
+        console.error('Error fetching user data:', error);
+        throw error;
+    } finally {
+        if (client) {
+            await client.close();
+        }
+    }
+}
