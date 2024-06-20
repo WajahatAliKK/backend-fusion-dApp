@@ -1,5 +1,5 @@
 import { swapTokens, swapInstructions, transferSOL, withdraw } from './swap.js';
-import { getRecentData , getItemsBySource} from '../services/newPairs.js' ;
+import { getRecentData , getItemsBySource,getItemsByCriteria} from '../services/newPairs.js' ;
 // import{decryptPrivateKey } from '../utils/encryption.js';
 export {
     swapTokens,
@@ -7,5 +7,6 @@ export {
     transferSOL,
     withdraw,
     getRecentData,
-    getItemsBySource
+    getItemsBySource,
+    getItemsByCriteria
 };
