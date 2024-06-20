@@ -87,7 +87,7 @@ export async function getItemsBySource(userChoice) {
 
 // filter function and enpoint
 
-async function getItemsByCriteria(criteria) {
+export async function getItemsByCriteria(criteria) {
     let client;
     try {
         client = await connectToMongoDB();
