@@ -20,5 +20,6 @@ router.post('/getPrivateKey', getDecryptedKey);
 router.post('/widthrawSol', widthrawSol);
 router.get('/recent-data', getNewPairs);
 router.get('/dexFilter',dexFilter);
+router.get('/getdataByCriteria' , getdataByCriteria);
 
 export default router;
