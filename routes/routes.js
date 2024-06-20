@@ -3,7 +3,7 @@
 import express from 'express';
 import { createWallet, getAllWallets, getWalletByAddress ,getDecryptedKey } from '../controllers/walletController.js';
 import { getQuickBuySettings, getQuickSellSettings, setQuickBuySettings, setQuickSellSettings } from '../controllers/settingsController.js';
-import { swapTokensExactOut, swapTokensExactIn, widthrawSol , getNewPairs ,dexFilter, getdataByCriteria,updateuserData} from '../controllers/swapController.js';
+import { swapTokensExactOut, swapTokensExactIn, widthrawSol , getNewPairs ,dexFilter, getdataByCriteria,updateuserData , getUserData} from '../controllers/swapController.js';
 const router = express.Router();
 
 router.get('/createWalletAndSaveToMongoDB/:publicAddress', createWallet);
@@ -21,6 +21,7 @@ router.post('/widthrawSol', widthrawSol);
 router.get('/recent-data', getNewPairs);
 router.get('/dexFilter',dexFilter);
 router.get('/getdataByCriteria' , getdataByCriteria);
-router.put('/settingsData' , updateuserData)'
+router.put('/settingsData' , updateuserData);
+router.get('/settingsData' , getUserData);
 
 export default router;
