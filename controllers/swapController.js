@@ -1,6 +1,6 @@
 
 
-import { swapTokens as swapTokensExactOutService, swapTokens as swapTokensExactInService , transferSOL, withdraw, getRecentData,getItemsBySource} from '../services/swapService.js';
+import { swapTokens as swapTokensExactOutService, swapTokens as swapTokensExactInService , transferSOL, withdraw, getRecentData,getItemsBySource,getItemsByCriteria } from '../services/swapService.js';
 
 export async function swapTokensExactOut(req, res) {
     const { inputMint, outputMint, amount ,address,slippageBps } = req.body;
@@ -60,3 +60,15 @@ export async function dexFilter(req, res)  {
         res.status(500).send('Error fetching items');
     }
 }
+
+export  async function getdataByCriteria (req, res)  {
+    const criteria = req.body;
+
+    try {
+        const items = await getItemsByCriteria(criteria);
+        res.json(items);
+    } catch (error) {
+        res.status(500).send('Error fetching items by criteria');
+    }
+});
+
