@@ -153,3 +153,70 @@ export async function getItemsByCriteria(criteria) {
         }
     }
 }
+
+
+export async function updateUserSettings(userAddress, updates) {
+    let client;
+    try {
+        client = await connectToMongoDB();
+        const db = client.db(dbName);
+        const collection = db.collection('lumina-birdapi-userSettingData-saved');
+
+        const filter = { userAddress };
+        const existingDocument = await collection.findOne(filter);
+
+        if (!existingDocument) {
+            throw new Error('User data not found');
+        }
+
+        const updateDocument = {};
+        if (updates.hasOwnProperty('Slippage')) {
+            updateDocument.Slippage = updates.Slippage;
+        }
+        if (updates.hasOwnProperty('priorityFee')) {
+            updateDocument.priorityFee = updates.priorityFee;
+        }
+        if (updates.hasOwnProperty('smartMevProtection')) {
+            updateDocument.smartMevProtection = updates.smartMevProtection;
+        }
+        if (updates.hasOwnProperty('BriberyAmount')) {
+            updateDocument.BriberyAmount = updates.BriberyAmount;
+        }
+        if (updates.hasOwnProperty('amount1')) {
+            updateDocument.amount1 = updates.amount1;
+        }
+        if (updates.hasOwnProperty('amount2')) {
+            updateDocument.amount2 = updates.amount2;
+        }
+        if (updates.hasOwnProperty('amount3')) {
+            updateDocument.amount3 = updates.amount3;
+        }
+        if (updates.hasOwnProperty('amount4')) {
+            updateDocument.amount4 = updates.amount4;
+        }
+        if (updates.hasOwnProperty('amount5')) {
+            updateDocument.amount5 = updates.amount5;
+        }
+        if (updates.hasOwnProperty('amount6')) {
+            updateDocument.amount6 = updates.amount6;
+        }
+
+        const result = await collection.updateOne(filter, { $set: updateDocument });
+
+        if (result.modifiedCount === 0) {
+            throw new Error('No document found to update');
+        }
+
+        console.log(`Updated document for userAddress ${userAddress}`);
+
+        const updatedUserData = await collection.findOne(filter);
+        return updatedUserData;
+    } catch (error) {
+        console.error('Error updating user data:', error);
+        throw error;
+    } finally {
+        if (client) {
+            await client.close();
+        }
+    }
+}
